@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'coin_data.dart';
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -6,12 +7,34 @@ class PriceScreen extends StatefulWidget {
 }
 
 class _PriceScreenState extends State<PriceScreen> {
+  dynamic convertedList = [];
+  var _currency;
+
+  @override
+  void initState() {
+    super.initState();
+    buildDropdownItems();
+    _currency = convertedList.first.value;
+  }
+
+  void buildDropdownItems() {
+    for (String currency in currenciesList) {
+      convertedList.add(
+        DropdownMenuItem<String>(value: currency, child: Text(currency)),
+      );
+    }
+  }
+
+  void updateCurrency(String newVal) {
+    setState(() {
+      _currency = newVal;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('🤑 Coin Ticker'),
-      ),
+      appBar: AppBar(title: Text('🤑 Coin Ticker'), centerTitle: true),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -29,10 +52,7 @@ class _PriceScreenState extends State<PriceScreen> {
                 child: Text(
                   '1 BTC = ? USD',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
+                  style: TextStyle(fontSize: 20.0, color: Colors.white),
                 ),
               ),
             ),
@@ -42,7 +62,11 @@ class _PriceScreenState extends State<PriceScreen> {
             alignment: Alignment.center,
             padding: EdgeInsets.only(bottom: 30.0),
             color: Colors.lightBlue,
-            child: null,
+            child: DropdownButton<String>(
+              value: _currency,
+              items: convertedList,
+              onChanged: (value) => updateCurrency(value!),
+            ),
           ),
         ],
       ),

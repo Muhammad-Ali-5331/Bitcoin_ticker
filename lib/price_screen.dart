@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'coin_data.dart';
+import 'package:flutter/cupertino.dart';
+import 'dart:io' show Platform;
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -7,28 +9,46 @@ class PriceScreen extends StatefulWidget {
 }
 
 class _PriceScreenState extends State<PriceScreen> {
-  dynamic convertedList = [];
-  var _currency;
-
-  @override
-  void initState() {
-    super.initState();
-    buildDropdownItems();
-    _currency = convertedList.first.value;
-  }
-
-  void buildDropdownItems() {
+  DropdownButton currencyDropdownButton() {
+    List<DropdownMenuItem<String>> dropDownList = [];
     for (String currency in currenciesList) {
-      convertedList.add(
+      dropDownList.add(
         DropdownMenuItem<String>(value: currency, child: Text(currency)),
       );
     }
+    var currency = dropDownList[19].value;
+    void updateCurrency(String newVal) {
+      setState(() {
+        currency = newVal;
+      });
+    }
+
+    return DropdownButton<String>(
+      value: currency,
+      items: dropDownList,
+      onChanged: (value) => updateCurrency(value!),
+    );
   }
 
-  void updateCurrency(String newVal) {
-    setState(() {
-      _currency = newVal;
-    });
+  CupertinoPicker currencyCupertinoPicker() {
+    List<Widget> pickerList = [];
+
+    for (String currency in currenciesList) {
+      pickerList.add(Text(currency));
+    }
+
+    var selectedIndex = 19; // Selecting USD currency by default
+
+    return CupertinoPicker(
+      itemExtent: 36.0,
+      onSelectedItemChanged: (int newIndex) {
+        setState(() {
+          selectedIndex = newIndex;
+        });
+      },
+      scrollController: FixedExtentScrollController(initialItem: selectedIndex),
+      children: pickerList,
+    );
   }
 
   @override
@@ -57,15 +77,16 @@ class _PriceScreenState extends State<PriceScreen> {
               ),
             ),
           ),
-          Container(
-            height: 150.0,
+          Align(
             alignment: Alignment.center,
-            padding: EdgeInsets.only(bottom: 30.0),
-            color: Colors.lightBlue,
-            child: DropdownButton<String>(
-              value: _currency,
-              items: convertedList,
-              onChanged: (value) => updateCurrency(value!),
+            child: Container(
+              height: 150.0,
+              alignment: Alignment.center,
+              padding: EdgeInsets.only(bottom: 30.0),
+              color: Colors.lightBlue,
+              child: Platform.isIOS
+                  ? currencyCupertinoPicker()
+                  : currencyDropdownButton(),
             ),
           ),
         ],
